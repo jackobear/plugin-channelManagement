@@ -11,20 +11,11 @@ import ListSubheader from '@material-ui/core/ListSubheader';
 import Switch from '@material-ui/core/Switch';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
+import Collapse from '@material-ui/core/Collapse'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import IconButton from '@material-ui/core/IconButton'
 
 const styles = theme => ({
-  header: {
-    fontSize: '10px',
-    fontWeight: 'bold',
-    paddingLeft: '11px',
-    borderStyle: 'solid',
-    borderWidth: '0px 0px 1px',
-    borderColor: '#c6cad7',
-    textTransform: 'uppercase',
-    letterSpacing: '2px',
-    height: '48px',
-    position: 'relative'
-  },
   listItem: {
     position: 'relative',
     overflow: 'auto',
@@ -119,7 +110,7 @@ class ChannelManagement extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { channelAvailability: {}, channelCapacity: {}, disableButtons: true }
+    this.state = { channelAvailability: {}, channelCapacity: {}, disableButtons: true, expanded: false }
   };
 
   componentDidMount() {
@@ -130,6 +121,7 @@ class ChannelManagement extends React.Component {
 
   componentDidUpdate(prevProps) {
     if (this.props.selectedWorker !== prevProps.selectedWorker) {
+      this.setState({expanded: false});
       this.fetchData(this.props.selectedWorker);
     }
   }
@@ -215,6 +207,16 @@ class ChannelManagement extends React.Component {
     this.submitData();
   };
 
+  handleExpandClick = () => {
+    this.setState({
+      expanded: !this.state.expanded,
+    })
+  }
+
+  handleCapacityClick = (e) => {
+    e.target.select()
+  }
+
   render() {
     const { classes } = this.props;
     const mapStructure = (channelAvailability, channelCapacity) => {
@@ -230,6 +232,7 @@ class ChannelManagement extends React.Component {
               value={channelCapacity[channel]}
               margin='normal'
               variant='outlined'
+              onClick={this.handleCapacityClick}
               onChange={this.handleCapacityChange}
             />
             <ListItemSecondaryAction>
@@ -247,16 +250,31 @@ class ChannelManagement extends React.Component {
         )
       });
     };
+    let expandClasses = 'profile-expand'
+    expandClasses += this.state.expanded ? ' profile-expand-open' : ''
 
     return (
       <div style={channelManagementStyles}>
-        <List subheader={<ListSubheader className={classes.header}>Channel Availability</ListSubheader>}>
-          {mapStructure(this.state.channelAvailability, this.state.channelCapacity)}
-        </List>
-        <div style={buttonStyles}>
-          <Button variant='contained' className={classes.submitButton} disabled={this.state.disableButtons} onClick={this.submit}>Submit</Button>
-          <Button variant='contained' className={classes.resetButton} disabled={this.state.disableButtons} onClick={this.reset}>Reset</Button>
+        <div className='agent-profile-heading'>
+          <span>Channel Capacities</span>
+          <IconButton
+            className={expandClasses}
+            onClick={this.handleExpandClick}
+            aria-expanded={this.state.expanded}
+            aria-label='Show more'
+          >
+            <ExpandMoreIcon />
+          </IconButton>
         </div>
+        <Collapse in={this.state.expanded} timeout="auto" unmountOnExit>
+          <List>
+            {mapStructure(this.state.channelAvailability, this.state.channelCapacity)}
+          </List>
+          <div style={buttonStyles}>
+            <Button variant='contained' className={classes.submitButton} disabled={this.state.disableButtons} onClick={this.submit}>Submit</Button>
+            <Button variant='contained' className={classes.resetButton} disabled={this.state.disableButtons} onClick={this.reset}>Reset</Button>
+          </div>
+        </Collapse>
       </div>
     );
   }
