@@ -195,13 +195,16 @@ class ChannelManagement extends React.Component {
   };
 
   handleCapacityChange = (e) => {
-    let { channelAvailability, channelCapacity } = this.state;
-    channelCapacity[e.target.id] = parseInt(e.target.value, 10);
-    this.setState({
-      channelAvailability: channelAvailability,
-      channelCapacity: channelCapacity,
-      disableButtons: false
-    });
+    const newCapacity = parseInt(e.target.value, 10);
+    if (Number.isInteger(newCapacity)) {
+      let { channelAvailability, channelCapacity } = this.state;
+      channelCapacity[e.target.id] = newCapacity;
+      this.setState({
+        channelAvailability: channelAvailability,
+        channelCapacity: channelCapacity,
+        disableButtons: false
+      });
+    }
   };
 
   reset = () => {
